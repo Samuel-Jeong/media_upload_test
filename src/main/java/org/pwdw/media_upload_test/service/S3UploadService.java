@@ -1,7 +1,9 @@
 package org.pwdw.media_upload_test.service;
 
+import com.amazonaws.HttpMethod;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CannedAccessControlList;
+import com.amazonaws.services.s3.model.GeneratePresignedUrlRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -70,6 +73,22 @@ public class S3UploadService {
         if (amazonS3.doesObjectExist(bucket, filePath)) {
             amazonS3.deleteObject(bucket, filePath);
         }
+    }
+
+    public String getFileURL(String fileName) {
+        // set expiration
+        /*Date expiration = new Date();
+        long expTimeMillis = expiration.getTime();
+        expTimeMillis += 1000 * 60 * 60; // 1 hour
+        expiration.setTime(expTimeMillis);*/
+
+        // Generate the presigned URL.
+        GeneratePresignedUrlRequest generatePresignedUrlRequest =
+                new GeneratePresignedUrlRequest(bucket, (fileName).replace(File.separatorChar, '/'))
+                        .withMethod(HttpMethod.GET);
+                        //.withExpiration(expiration);
+
+        return amazonS3.generatePresignedUrl(generatePresignedUrlRequest).toString();
     }
 
 }
