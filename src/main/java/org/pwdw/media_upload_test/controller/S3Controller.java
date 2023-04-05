@@ -74,22 +74,7 @@ public class S3Controller {
             return null;
         }
 
-        ResponseEntity<byte[]> result = null;
-        try {
-            InputStream inputStream = getFileStream(imageName);
-
-            HttpHeaders header = new HttpHeaders();
-            //header.add(HttpHeaders.CONTENT_TYPE, URLConnection.guessContentTypeFromStream(inputStream));
-            header.add(HttpHeaders.CONTENT_TYPE, "image/jpeg");
-            result = new ResponseEntity<>(
-                    IOUtils.toByteArray(inputStream),
-                    header, HttpStatus.OK
-            );
-        } catch(IOException e) {
-            log.warn("Fail to getImage. (imageName={}) ({}) ({})", imageName, e.getCause(), e.getMessage());
-        }
-
-        return result;
+        return getFileResult(imageName, "image/jpeg");
     }
 
     @ResponseBody
@@ -99,20 +84,23 @@ public class S3Controller {
             return null;
         }
 
+        return getFileResult(videoName, "video/mp4");
+    }
+
+    private ResponseEntity<byte[]> getFileResult(String fileName, String contentType) {
         ResponseEntity<byte[]> result = null;
         try {
-            InputStream inputStream = getFileStream(videoName);
+            InputStream inputStream = getFileStream(fileName);
 
             HttpHeaders header = new HttpHeaders();
-            header.add(HttpHeaders.CONTENT_TYPE, "video/mp4");
+            header.add(HttpHeaders.CONTENT_TYPE, contentType);
             result = new ResponseEntity<>(
                     IOUtils.toByteArray(inputStream),
                     header, HttpStatus.OK
             );
         } catch(IOException e) {
-            log.warn("Fail to getVideo. (videoName={}) ({}) ({})", videoName, e.getCause(), e.getMessage());
+            log.warn("Fail to get the file. (fileName={}) ({}) ({})", fileName, e.getCause(), e.getMessage());
         }
-
         return result;
     }
 
